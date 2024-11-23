@@ -108,6 +108,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
     }
   }
 
+  Future onUploadTextPressed() async {
+    // Give the user a way to upload a pdf
+  }
+
   Future onDisconnectPressed() async {
     try {
       await widget.device.disconnectAndUpdateStream();
@@ -217,17 +221,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
       ],
     );
   }
-
-  Widget buildMtuTile(BuildContext context) {
-    return ListTile(
-        title: const Text('MTU Size'),
-        subtitle: Text('$_mtuSize bytes'),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: onRequestMtuPressed,
-        ));
-  }
-
+  
   Widget buildConnectButton(BuildContext context) {
     return Row(children: [
       if (_isConnecting || _isDisconnecting) buildSpinner(context),
@@ -239,6 +233,14 @@ class _DeviceScreenState extends State<DeviceScreen> {
           ))
     ]);
   }
+  
+  Widget buildUploadTextButton(BuildContext context) {
+        return TextButton(
+            onPressed: () => _showTextInputDialog(context),
+            child: Text(
+              "Upload Text",
+            ));
+  } 
 
   @override
   Widget build(BuildContext context) {
@@ -258,12 +260,44 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 title: Text('Device is ${_connectionState.toString().split('.')[1]}.'),
                 trailing: buildGetServices(context),
               ),
-              buildMtuTile(context),
               ..._buildServiceTiles(context, widget.device),
+              buildUploadTextButton(context),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _showTextInputDialog(BuildContext context) {
+    final TextEditingController _textFieldController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter Your Name'),
+          content: TextField(
+            controller: _textFieldController,
+            decoration: InputDecoration(hintText: "Your name"),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                print('Entered text: ${_textFieldController.text}');
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
